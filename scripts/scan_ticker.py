@@ -14,6 +14,7 @@ Emits a plain-text institutional-style report:
 from __future__ import annotations
 
 import argparse
+import datetime as dt
 import importlib
 import sys
 from pathlib import Path
@@ -44,11 +45,23 @@ SHORT_VOL_GATE: float = 0.10
 LONG_VOL_GATE: float = -0.05
 
 
-def _front_month_atm_iv(chain: pd.DataFrame, spot: float) -> float:
-    """Median IV across strikes within ±5% of spot on the nearest expiry."""
+def _front_month_atm_iv(
+    chain: pd.DataFrame, spot: float, today: dt.date | None = None
+) -> float:
+    """Median IV across strikes within ±5% of spot on the nearest expiry.
+
+    Contracts expiring today (0DTE) or earlier are skipped: their IV prices
+    the last few hours of the session, not the forecast horizon, and on an
+    expiry day it would otherwise be the "nearest" expiry.
+    """
     if chain.empty or "expiry" not in chain:
         raise RuntimeError("chain is empty or missing expiry column")
-    nearest = chain["expiry"].dropna().min()
+    today = today or dt.date.today()
+    expiries = chain["expiry"].dropna()
+    expiries = expiries[expiries > today]
+    if expiries.empty:
+        raise RuntimeError("no expiries after today in the chain")
+    nearest = expiries.min()
     window = chain[
         (chain["expiry"] == nearest)
         & chain["iv"].notna()
