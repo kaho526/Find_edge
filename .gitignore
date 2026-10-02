@@ -12,3 +12,6 @@ build/
 .claude/
 .vscode/
 data/
+AGENTS.md
+CLAUDE.md
+STUDY.md
