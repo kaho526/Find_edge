@@ -1,0 +1,3 @@
+sample,n,first_origin,last_origin,n_block1_origins,n_crisis,mean_gap,median_gap,share_vix_above_rv,nw_t,p_one_sided
+all,5450,2005-01-03,2026-09-01,5450,287,0.0346186,0.0432625,0.835963,8.74654,0
+ex-crisis,5163,2005-01-03,2026-09-01,5450,287,0.0403618,0.04389,0.854736,15.5991,0

@@ -24,10 +24,25 @@ TRADING_DAYS_PER_YEAR: int = 252
 RISKMETRICS_LAMBDA: float = 0.94
 
 
+def _garch_model(returns: pd.Series, dist: str):
+    clean = returns.dropna()
+    if clean.empty:
+        raise ValueError("returns series is empty after dropna")
+    # arch_model converges better on percent-scaled returns; undo after.
+    scaled = clean.to_numpy() * 100.0
+    return arch_model(scaled, vol="Garch", p=1, q=1, dist=dist, rescale=False)
+
+
+def fit_garch(returns: pd.Series, dist: str = "t") -> np.ndarray:
+    """Fitted GARCH(1,1) parameters, for reuse via ``forecast_garch_vol(params=)``."""
+    return _garch_model(returns, dist).fit(disp="off").params.to_numpy()
+
+
 def forecast_garch_vol(
     returns: pd.Series,
     horizon: int = 14,
     dist: str = "t",
+    params: np.ndarray | None = None,
 ) -> float:
     """Forecast average annualized volatility over ``horizon`` trading days.
 
@@ -52,20 +67,18 @@ def forecast_garch_vol(
     dist : str
         Innovation distribution passed to ``arch_model`` ('t', 'normal',
         'skewt', 'ged').
+    params : np.ndarray, optional
+        Parameters from ``fit_garch``. When given, the model is not refitted:
+        the fixed parameters are filtered over ``returns`` to forecast. This
+        is how a walk-forward study refits monthly but forecasts daily.
 
     Returns
     -------
     float
         Forecasted annualized volatility over the horizon (e.g. 0.60 = 60%).
     """
-    clean = returns.dropna()
-    if clean.empty:
-        raise ValueError("returns series is empty after dropna")
-
-    # arch_model converges better on percent-scaled returns; undo after.
-    scaled = clean.to_numpy() * 100.0
-    model = arch_model(scaled, vol="Garch", p=1, q=1, dist=dist, rescale=False)
-    fit = model.fit(disp="off")
+    model = _garch_model(returns, dist)
+    fit = model.fix(params) if params is not None else model.fit(disp="off")
 
     forecast = fit.forecast(horizon=horizon, reindex=False)
     daily_var_pct2 = forecast.variance.to_numpy()[-1]

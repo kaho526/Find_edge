@@ -1,0 +1,4 @@
+bucket,n,share_of_days,share_rv_below_vix
+rich (spread > +0.10),113,0.0207339,0.938053
+between (-0.05 to +0.10),5245,0.962385,0.834509
+cheap (spread < -0.05),92,0.0168807,0.793478

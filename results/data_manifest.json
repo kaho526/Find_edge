@@ -1,0 +1,36 @@
+{
+  "source": "Yahoo Finance via yfinance 1.7.0",
+  "ticker": "^GSPC",
+  "fields": [
+    "Open",
+    "High",
+    "Low",
+    "Close",
+    "Volume"
+  ],
+  "interval": "1d",
+  "file": "data/gspc_daily.csv",
+  "download_date": "2026-10-02",
+  "first_date": "2000-01-03",
+  "last_date": "2026-10-01",
+  "rows": 6727,
+  "sha256": "d5519ed5ce4380902df6f5f634a7d8f4be4dc38ab2822bdab3cd56f13d5faa26",
+  "vix": {
+    "source": "Cboe Global Markets, official VIX daily price history",
+    "url": "https://cdn.cboe.com/api/global/us_indices/daily_prices/VIX_History.csv",
+    "fields": [
+      "DATE",
+      "OPEN",
+      "HIGH",
+      "LOW",
+      "CLOSE"
+    ],
+    "used": "CLOSE, divided by 100 (volatility points to decimal)",
+    "file": "data/vix_history.csv",
+    "download_date": "2026-10-02",
+    "first_date": "1990-01-02",
+    "last_date": "2026-10-01",
+    "rows": 9285,
+    "sha256": "2b28877e77b1b4b76875afb1a84c3a06eced2120a651c3b5ff7d91b32fa660b5"
+  }
+}
